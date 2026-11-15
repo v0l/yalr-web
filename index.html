@@ -292,6 +292,7 @@
   .note { margin-top: 18px; border: 1px solid var(--line-bright); border-left: 3px solid var(--signal); border-radius: 4px; padding: 18px 22px; font-size: 13.5px; color: var(--ink-dim); }
   .note b { color: var(--ink); font-weight: 500; }
   .models-box { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .models-box { max-width: 760px; }
   .models-sum { padding: 16px 20px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--ink-dim); }
   .models-sum b { color: var(--signal); }
   .mrow { display: grid; grid-template-columns: 1fr auto auto; gap: 18px; padding: 11px 20px; border-bottom: 1px solid var(--line); font-size: 13px; align-items: center; }
@@ -407,7 +408,7 @@
       </div>
     </div>
 
-    <div class="viz reveal">
+    <div class="viz">
       <span class="corner c-tl">// YALR ROUTER</span>
       <span class="corner c-br" id="earnCorner">earned +0 sats</span>
       <canvas id="routingCanvas"></canvas>
@@ -477,11 +478,11 @@
     <div class="quick-grid two">
       <div class="codeblock reveal">
         <div class="bar"><span class="d r"></span><span class="d"></span><span class="d"></span><span class="fname">curl · chat completions</span></div>
-        <pre><span class="tok-k">curl</span> https://yalr.v0l.io<span class="tok-s">/v1/chat/completions</span> \
+        <pre><span class="tok-k">curl</span> https://app.yalr.net<span class="tok-s">/v1/chat/completions</span> \
   <span class="tok-p">-H</span> <span class="tok-s">"Authorization: Bearer $YALR_KEY"</span> \
   <span class="tok-p">-H</span> <span class="tok-s">"Content-Type: application/json"</span> \
   <span class="tok-p">-d</span> <span class="tok-s">'{</span>
-    <span class="tok-f">"model"</span>: <span class="tok-s">"claude-sonnet-5.5"</span>,
+    <span class="tok-f">"model"</span>: <span class="tok-s">"qwen3.8-27b-uncensored"</span>,
     <span class="tok-f">"messages"</span>: [{ <span class="tok-f">"role"</span>:<span class="tok-s">"user"</span>,
                   <span class="tok-f">"content"</span>:<span class="tok-s">"hi"</span> }]
   <span class="tok-s">}'</span></pre>
@@ -490,7 +491,7 @@
         <div class="bar"><span class="d r"></span><span class="d"></span><span class="d"></span><span class="fname">curl · anonymous key</span></div>
         <pre><span class="tok-c"># Returns a Lightning invoice.</span>
 <span class="tok-c"># Pay it and the key is yours.</span>
-<span class="tok-k">curl</span> <span class="tok-p">-X</span> POST https://yalr.v0l.io<span class="tok-s">/v2/lightning/invoice</span></pre>
+<span class="tok-k">curl</span> <span class="tok-p">-X</span> POST https://app.yalr.net<span class="tok-s">/v2/lightning/invoice</span></pre>
       </div>
     </div>
     <div class="bento" style="margin-top:14px">
@@ -500,7 +501,7 @@
     </div>
     <div class="hero-btns reveal" style="margin-top:28px">
       <a href="https://app.yalr.net/register" class="btn btn-primary">Create an account</a>
-      <a href="https://app.yalr.net/models" class="btn btn-ghost">See models and prices</a>
+      <a href="https://app.yalr.net/models" class="btn btn-ghost">See all models and providers</a>
     </div>
   </div>
 </section>
@@ -510,13 +511,13 @@
     <div class="sec-head reveal">
       <span class="num">04 / LIVE</span>
       <h2>Models right now.</h2>
-      <p>Read live from the public API when you open this page.</p>
+      <p>Read live from the public API when you open this page. A model with several providers is shared between them, and the price is the one the provider set.</p>
     </div>
-    <div class="models-box reveal" id="modelsBox">
+    <div class="models-box" id="modelsBox">
       <div class="models-sum" id="modelsSum">Loading models...</div>
       <div id="modelsList"></div>
     </div>
-    <div class="hero-btns reveal" style="margin-top:22px"><a href="https://app.yalr.net/models" class="btn btn-primary">See models and prices</a></div>
+    <div class="hero-btns" style="margin-top:22px"><a href="https://app.yalr.net/models" class="btn btn-primary">See all models and providers</a></div>
   </div>
 </section>
 
@@ -547,7 +548,7 @@
           <h5>App</h5>
           <a href="https://app.yalr.net">app.yalr.net</a>
           <a href="https://app.yalr.net/register">Sign up</a>
-          <a href="https://app.yalr.net/models">Models and prices</a>
+          <a href="https://app.yalr.net/models">All models and providers</a>
         </div>
         <div class="foot-col">
           <h5>Project</h5>
@@ -642,8 +643,8 @@
       ctx.beginPath();
       ctx.moveTo(h.x, h.y);
       ctx.lineTo(n.x, n.y);
-      ctx.strokeStyle = 'rgba(20,20,20,0.14)';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(20,20,20,0.35)';
+      ctx.lineWidth = 1.5;
       ctx.stroke();
     });
 
@@ -671,11 +672,11 @@
       const grad = ctx.createLinearGradient(tx, ty, x, y);
       grad.addColorStop(0, 'transparent');
       grad.addColorStop(1, pk.hue);
-      ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      ctx.strokeStyle = grad; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
       ctx.moveTo(tx, ty); ctx.lineTo(x, y); ctx.stroke();
       // head
       ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI*2);
+      ctx.arc(x, y, 4, 0, Math.PI*2);
       ctx.fillStyle = pk.hue;
       ctx.shadowColor = pk.hue; ctx.shadowBlur = 4;
       ctx.fill(); ctx.shadowBlur = 0;
@@ -699,14 +700,14 @@
       const flash = p._flash ? Math.max(0, 1 - (t - p._flash)/350) : 0;
       const col = p.name === 'your gpu' ? '#141414' : SIGNAL;
       ctx.beginPath();
-      ctx.arc(n.x, n.y, 9 + flash*5, 0, Math.PI*2);
+      ctx.arc(n.x, n.y, (W < 500 ? 11 : 9) + flash*5, 0, Math.PI*2);
       ctx.fillStyle = col;
       ctx.shadowColor = col; ctx.shadowBlur = 8 + flash*16; ctx.fill(); ctx.shadowBlur = 0;
       // ring
       ctx.beginPath(); ctx.arc(n.x, n.y, 9 + flash*5, 0, Math.PI*2);
       ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2; ctx.stroke();
       // label
-      ctx.fillStyle = FAINT; ctx.font = '500 10px JetBrains Mono'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#5b5b5b'; ctx.font = '500 ' + (W < 500 ? 11 : 10) + 'px JetBrains Mono'; ctx.textAlign = 'center';
       ctx.fillText(p.name, n.x, n.y + 24);
     });
 
@@ -723,40 +724,35 @@
 
   /* ---- live models ---- */
   (function () {
+    const box = document.getElementById('modelsBox');
     const sum = document.getElementById('modelsSum');
     const list = document.getElementById('modelsList');
-    function price(r) {
-      if (!r) return '';
-      const fmt = (v) => r.currency === 'sats' ? v + ' sats' : '$' + (v / 100000).toFixed(2);
-      const span = (a, b) => a === b ? fmt(a) : fmt(a) + ' to ' + fmt(b);
-      return 'in ' + span(r.min_input, r.max_input) + ' / out ' + span(r.min_output, r.max_output) + ' per 1M';
+    const sats = (v) => {
+      const n = Math.round((v || 0) * 1e6);
+      return n > 0 ? n.toLocaleString('en-US') : 0;
+    };
+    const ctx = (n) => n ? (n >= 1e6 ? (n / 1e6) + 'M' : Math.round(n / 1000) + 'k') + ' context' : '';
+    function cell(cls, text) {
+      const el = document.createElement('span'); el.className = cls; el.textContent = text; return el;
     }
-    fetch('https://yalr.v0l.io/v1/models')
+    fetch('https://app.yalr.net/v1/models')
       .then((r) => r.json())
       .then((j) => {
-        const data = (j.data || []);
-        if (!data.length) { document.getElementById('modelsBox').style.display = 'none'; return; }
-        const community = data.filter((m) => m.provider_count);
-        sum.innerHTML = '<b>' + data.length + '</b> models available' + (community.length ? ', <b>' + community.length + '</b> served by user providers' : '') + '.';
-        const rows = community.concat(data.filter((m) => !m.provider_count)).slice(0, 12);
-        rows.forEach((m) => {
+        const data = j.data || [];
+        if (!data.length) { box.style.display = 'none'; return; }
+        sum.innerHTML = '<b>' + data.length + '</b> ' + (data.length === 1 ? 'model' : 'models') + ' listed. Prices are sats per 1M tokens.';
+        data.slice(0, 8).forEach((m) => {
           const row = document.createElement('div');
           row.className = 'mrow';
-          const id = document.createElement('span'); id.className = 'mid'; id.textContent = m.id;
-          const pc = document.createElement('span'); pc.className = 'mp';
-          pc.textContent = m.provider_count ? m.provider_count + (m.provider_count === 1 ? ' provider' : ' providers') : '';
-          const pr = document.createElement('span'); pr.className = 'mp price';
-          pr.textContent = price((m.price_range || [])[0]);
-          row.append(id, pc, pr);
+          const p = m.sats_pricing || {};
+          const inP = sats(p.prompt), outP = sats(p.completion);
+          const price = (inP || outP) ? 'in ' + inP + ' / out ' + outP + ' sats' : '';
+          row.append(cell('mid', m.id), cell('mp', ctx(m.context_length)), cell('mp price', price));
           list.appendChild(row);
         });
-        if (data.length > rows.length) {
-          const more = document.createElement('div'); more.className = 'models-more';
-          more.textContent = '+ ' + (data.length - rows.length) + ' more on the models page';
-          list.appendChild(more);
-        }
+        if (data.length > 8) list.appendChild(cell('models-more', '+ ' + (data.length - 8) + ' more'));
       })
-      .catch(() => { document.getElementById('modelsBox').style.display = 'none'; });
+      .catch(() => { box.style.display = 'none'; });
   })();
 </script>
 </body>
