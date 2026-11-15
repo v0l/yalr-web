@@ -500,7 +500,7 @@
     </div>
     <div class="hero-btns reveal" style="margin-top:28px">
       <a href="https://app.yalr.net/register" class="btn btn-primary">Create an account</a>
-      <a href="https://yalr.v0l.io/v1/models" class="btn btn-ghost">Browse /v1/models</a>
+      <a href="https://app.yalr.net/models" class="btn btn-ghost">See models and prices</a>
     </div>
   </div>
 </section>
@@ -516,6 +516,7 @@
       <div class="models-sum" id="modelsSum">Loading models...</div>
       <div id="modelsList"></div>
     </div>
+    <div class="hero-btns reveal" style="margin-top:22px"><a href="https://app.yalr.net/models" class="btn btn-primary">See models and prices</a></div>
   </div>
 </section>
 
@@ -546,7 +547,7 @@
           <h5>App</h5>
           <a href="https://app.yalr.net">app.yalr.net</a>
           <a href="https://app.yalr.net/register">Sign up</a>
-          <a href="https://yalr.v0l.io/v1/models">/v1/models</a>
+          <a href="https://app.yalr.net/models">Models and prices</a>
         </div>
         <div class="foot-col">
           <h5>Project</h5>
@@ -751,7 +752,7 @@
         });
         if (data.length > rows.length) {
           const more = document.createElement('div'); more.className = 'models-more';
-          more.textContent = '+ ' + (data.length - rows.length) + ' more at /v1/models';
+          more.textContent = '+ ' + (data.length - rows.length) + ' more on the models page';
           list.appendChild(more);
         }
       })
