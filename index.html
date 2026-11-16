@@ -747,7 +747,6 @@
       .then((r) => r.json())
       .then((j) => {
         const all = j.models || [];
-        if (!all.length) { box.style.display = 'none'; return; }
         const data = all.filter((m) => priceText(m));
         if (!data.length) { sum.textContent = 'No priced models yet.'; return; }
         sum.innerHTML = '<b>' + data.length + '</b> priced ' + (data.length === 1 ? 'model' : 'models') + ' listed.';
