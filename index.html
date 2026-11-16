@@ -730,11 +730,13 @@
     const amount = (v, cur) => cur === 'usd'
       ? '$' + (v / 1e5).toLocaleString('en-US', { maximumFractionDigits: 4 })
       : Math.round(v).toLocaleString('en-US');
-    const range = (lo, hi, cur) => lo === hi ? amount(lo, cur) : amount(lo, cur) + '-' + amount(hi, cur);
+    const range = (lo, hi, cur) => {
+      const unit = cur === 'usd' ? '' : ' sats';
+      return (lo === hi ? amount(lo, cur) : amount(lo, cur) + '-' + amount(hi, cur)) + unit;
+    };
     const priceText = (m) => (m.price_ranges || []).map((r) => {
       const cur = String(r.currency || 'sats').toLowerCase();
-      const unit = cur === 'usd' ? '' : ' sats';
-      return range(r.min_input, r.max_input, cur) + ' / 1M in, ' + range(r.min_output, r.max_output, cur) + ' out' + unit;
+      return range(r.min_input, r.max_input, cur) + ' / 1M in \u00b7 ' + range(r.min_output, r.max_output, cur) + ' / 1M out';
     }).join(' or ');
     const providers = (n) => n + (n === 1 ? ' provider' : ' providers');
     const ctx = (n) => n ? (n >= 1e6 ? (n / 1e6) + 'M' : Math.round(n / 1000) + 'k') + ' context' : '';
@@ -746,16 +748,14 @@
       .then((j) => {
         const all = j.models || [];
         if (!all.length) { box.style.display = 'none'; return; }
-        const priced = all.filter((m) => priceText(m));
-        const routed = all.filter((m) => !priceText(m) && m.kind === 'routed');
-        const data = priced.concat(routed);
-        if (!priced.length) { sum.textContent = 'No priced models yet.'; return; }
-        sum.innerHTML = '<b>' + priced.length + '</b> priced ' + (priced.length === 1 ? 'model' : 'models') + ' listed. Prices are per 1M tokens.';
+        const data = all.filter((m) => priceText(m));
+        if (!data.length) { sum.textContent = 'No priced models yet.'; return; }
+        sum.innerHTML = '<b>' + data.length + '</b> priced ' + (data.length === 1 ? 'model' : 'models') + ' listed.';
         data.slice(0, 8).forEach((m) => {
           const row = document.createElement('div');
           row.className = 'mrow';
           const info = [providers(m.provider_count || 0), ctx(m.context_length)].filter(Boolean).join(', ');
-          row.append(cell('mid', m.id), cell('mp', info), cell('mp price', priceText(m) || 'routed, priced by YALR'));
+          row.append(cell('mid', m.id), cell('mp', info), cell('mp price', priceText(m)));
           list.appendChild(row);
         });
         if (data.length > 8) list.appendChild(cell('models-more', '+ ' + (data.length - 8) + ' more'));
