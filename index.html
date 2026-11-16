@@ -727,27 +727,35 @@
     const box = document.getElementById('modelsBox');
     const sum = document.getElementById('modelsSum');
     const list = document.getElementById('modelsList');
-    const sats = (v) => {
-      const n = Math.round((v || 0) * 1e6);
-      return n > 0 ? n.toLocaleString('en-US') : 0;
-    };
+    const amount = (v, cur) => cur === 'usd'
+      ? '$' + (v / 1e5).toLocaleString('en-US', { maximumFractionDigits: 4 })
+      : Math.round(v).toLocaleString('en-US');
+    const range = (lo, hi, cur) => lo === hi ? amount(lo, cur) : amount(lo, cur) + '-' + amount(hi, cur);
+    const priceText = (m) => (m.price_ranges || []).map((r) => {
+      const cur = String(r.currency || 'sats').toLowerCase();
+      const unit = cur === 'usd' ? '' : ' sats';
+      return range(r.min_input, r.max_input, cur) + ' / 1M in, ' + range(r.min_output, r.max_output, cur) + ' out' + unit;
+    }).join(' or ');
+    const providers = (n) => n + (n === 1 ? ' provider' : ' providers');
     const ctx = (n) => n ? (n >= 1e6 ? (n / 1e6) + 'M' : Math.round(n / 1000) + 'k') + ' context' : '';
     function cell(cls, text) {
       const el = document.createElement('span'); el.className = cls; el.textContent = text; return el;
     }
-    fetch('https://app.yalr.net/v1/models')
+    fetch('https://app.yalr.net/api/public/models')
       .then((r) => r.json())
       .then((j) => {
-        const data = j.data || [];
-        if (!data.length) { box.style.display = 'none'; return; }
-        sum.innerHTML = '<b>' + data.length + '</b> ' + (data.length === 1 ? 'model' : 'models') + ' listed. Prices are sats per 1M tokens.';
+        const all = j.models || [];
+        if (!all.length) { box.style.display = 'none'; return; }
+        const priced = all.filter((m) => priceText(m));
+        const routed = all.filter((m) => !priceText(m) && m.kind === 'routed');
+        const data = priced.concat(routed);
+        if (!priced.length) { sum.textContent = 'No priced models yet.'; return; }
+        sum.innerHTML = '<b>' + priced.length + '</b> priced ' + (priced.length === 1 ? 'model' : 'models') + ' listed. Prices are per 1M tokens.';
         data.slice(0, 8).forEach((m) => {
           const row = document.createElement('div');
           row.className = 'mrow';
-          const p = m.sats_pricing || {};
-          const inP = sats(p.prompt), outP = sats(p.completion);
-          const price = (inP || outP) ? 'in ' + inP + ' / out ' + outP + ' sats' : '';
-          row.append(cell('mid', m.id), cell('mp', ctx(m.context_length)), cell('mp price', price));
+          const info = [providers(m.provider_count || 0), ctx(m.context_length)].filter(Boolean).join(', ');
+          row.append(cell('mid', m.id), cell('mp', info), cell('mp price', priceText(m) || 'routed, priced by YALR'));
           list.appendChild(row);
         });
         if (data.length > 8) list.appendChild(cell('models-more', '+ ' + (data.length - 8) + ' more'));
